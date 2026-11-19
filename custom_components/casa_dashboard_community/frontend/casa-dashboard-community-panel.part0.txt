@@ -369,6 +369,51 @@ class CasaDashboardPanel extends HTMLElement {
           margin-top:0!important;
         }
       }
+
+      /* Compact responsive layout: presentation only, no entity/action changes. */
+      .app-shell main{padding:12px 14px 22px}
+      .app-shell .page{gap:10px}
+      .app-shell .grid{gap:8px}
+      .app-shell .card,.app-shell .metric{padding:11px;border-radius:13px}
+      .app-shell .metric{min-height:76px}
+      .app-shell .room-card{min-height:104px;border-radius:14px}
+      .app-shell .hero{padding:14px;border-radius:16px}
+      .app-shell .hero h1{font-size:clamp(24px,3vw,32px)}
+      .app-shell .hero-metric{padding:9px}
+      .app-shell .hero-metric .value{font-size:16px}
+      .app-shell .topbar-main{min-height:48px;padding:6px 12px}
+      .app-shell .app-icon{width:32px;height:32px;border-radius:10px}
+      .app-shell .app-icon ha-icon{--mdc-icon-size:19px}
+      .app-shell .brand-title{font-size:17px}
+      .app-shell .brand-subtitle{font-size:9px}
+      .app-shell .nav{gap:12px}
+      .app-shell .nav-btn{min-height:36px;padding:6px 2px 8px;font-size:11px}
+      .app-shell .nav-btn ha-icon{--mdc-icon-size:17px}
+      @media(min-width:1100px){
+        .app-shell main{padding:14px 20px 26px}
+        .app-shell .page{gap:12px}
+        .app-shell .grid{gap:10px}
+      }
+      @media(max-width:760px){
+        .app-shell main{padding:8px 8px 18px}
+        .app-shell .page{gap:9px}
+        .app-shell .grid{gap:7px}
+        .app-shell .card,.app-shell .metric{padding:10px;border-radius:12px}
+        .app-shell .metric{min-height:74px}
+        .app-shell .room-card{min-height:100px}
+        .app-shell .hero{padding:12px;border-radius:14px}
+        .app-shell .hero h1{font-size:27px}
+        .app-shell .topbar-main{min-height:46px;padding:6px 8px}
+        .app-shell .nav-btn{min-height:36px;padding:6px 1px 7px}
+      }
+      @media(max-width:480px){
+        .app-shell .span-2,.app-shell .span-3,.app-shell .span-4,
+        .app-shell .span-5,.app-shell .span-6,.app-shell .span-7,
+        .app-shell .span-8{grid-column:span 6}
+        .app-shell .hero-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+        .app-shell .room-card{min-width:0;min-height:96px}
+        .app-shell .card,.app-shell .metric{min-width:0;overflow-wrap:anywhere}
+      }
 </style>
       <div class="app-shell ui-${this._uiTheme}">
         <header class="topbar">
