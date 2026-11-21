@@ -236,7 +236,7 @@ else if(tempoOk&&lux>=40000&&rad>=350) discesa="Condizioni OK per abbassare"; el
   }
 
   _handleClick(ev) {
-    const target=ev.target.closest?.("[data-active-group],[data-action],[data-nav],[data-nav-scroll],[data-toggle],[data-more],[data-cover-toggle],[data-climate],[data-climate-temp],[data-vacuum],[data-vacuum-service],[data-mower-service],[data-alarm],[data-alarm-service],[data-lock-action],[data-humidity-delta],[data-script],[data-ui-theme],[data-room-entity-add],[data-room-entity-remove]"); if(!target) return;
+    const target=ev.target.closest?.("[data-active-group],[data-action],[data-nav],[data-nav-scroll],[data-tv-power],[data-toggle],[data-more],[data-cover-toggle],[data-climate],[data-climate-temp],[data-vacuum],[data-vacuum-service],[data-mower-service],[data-alarm],[data-alarm-service],[data-lock-action],[data-humidity-delta],[data-script],[data-ui-theme],[data-room-entity-add],[data-room-entity-remove]"); if(!target) return;
     if(target.dataset.action==="ha-menu") { this.dispatchEvent(new CustomEvent("hass-toggle-menu",{bubbles:true,composed:true})); return; }
     if(target.dataset.uiTheme){ this._setUiTheme(target.dataset.uiTheme); return; }
     if(target.dataset.action==="room-add"){ this._addRoomDraft(); return; }
@@ -284,6 +284,26 @@ else if(tempoOk&&lux>=40000&&rad>=350) discesa="Condizioni OK per abbassare"; el
       this._active=target.dataset.nav; this._renderNav(false); this._renderPage(false);
       requestAnimationFrame(()=>this.shadowRoot.querySelector(`.nav-btn[data-nav="${this._active}"]`)?.scrollIntoView({behavior:"smooth",inline:"center",block:"nearest"}));
       window.scrollTo({top:0,behavior:"smooth"}); return;
+    }
+    if(target.dataset.tvPower){
+      const eid=target.dataset.tvPower;
+      if(!/^media_player\.[a-z0-9_]+$/.test(eid) || !this._hass?.states?.[eid]) return;
+      const current=String(this._hass.states[eid].state||"unknown").toLowerCase();
+      if(!["off","unavailable","unknown"].includes(current)){
+        this._hass.callService("media_player","turn_off",{entity_id:eid});
+      } else {
+        // Never activate a wake button belonging to a different room.
+        const room=String(eid.split(".")[1]||"").split("_")[0];
+        const wake=Object.keys(this._hass.states).filter(id=>
+          id.startsWith(`button.${room}_`) && /wake_on_lan/i.test(id)
+        );
+        if(wake.length===1){
+          this._hass.callService("button","press",{entity_id:wake[0]});
+        } else {
+          this._hass.callService("media_player","turn_on",{entity_id:eid});
+        }
+      }
+      return;
     }
     if(target.dataset.more){ const eid=this._eid(target.dataset.more); if(!eid) return; this.dispatchEvent(new CustomEvent("hass-more-info",{detail:{entityId:eid},bubbles:true,composed:true})); return; }
     if(target.dataset.toggle){

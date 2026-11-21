@@ -275,6 +275,25 @@ de()) nodes.push(walker.currentNode);
   }
 
   _universalDeviceVisual(entity,title,type="generic",span=4,subtitle="",options={}){
+    // SMART HOME: unified TV control. More-info on the name retains media controls.
+    const mediaName=`${entity} ${title} ${this._hass?.states?.[entity]?.attributes?.friendly_name||""}`;
+    if(entity.startsWith("media_player.") && /\btv\b|televis|samsung|qe[0-9]/i.test(mediaName)){
+      const tvState=String(this._state(entity,"unknown")||"unknown").toLowerCase();
+      const tvActive=!["off","unavailable","unknown"].includes(tvState);
+      const tvStatus=tvState==="off"?"Spenta":tvState==="unavailable"?"Non disponibile":tvState==="unknown"?"Stato sconosciuto":"Accesa";
+      const tvIcon=this._activeRoomEntityIcon(entity)||"mdi:television";
+      const photo=this._customObjectVisual(entity,"universal");
+      const actionLabel=tvActive?"SPEGNI":"ACCENDI";
+      return `<div class="universal-device-card generic tv-smart ${tvActive?"active":"inactive"} span-${span}${entity?this._entitySizeClass(entity):""} ${photo?"has-custom-photo":""}">
+        ${photo||`<div class="universal-device-scene"><div class="generic-sensor"><ha-icon icon="${this._esc(tvIcon)}"></ha-icon></div></div>`}
+        <div class="universal-device-copy clickable" data-more="${this._esc(entity)}">
+          <span>${this._esc(title)}</span><strong>${this._esc(tvStatus)}</strong><small>${this._esc(subtitle||"Televisore · controlli e volume")}</small>
+        </div>
+        <button class="universal-device-action ${tvActive?"active":""}" data-tv-power="${this._esc(entity)}" type="button" aria-label="${this._esc(actionLabel+" "+title)}">
+          <ha-icon icon="mdi:power"></ha-icon><span>${actionLabel}</span>
+        </button>
+      </div>`;
+    }
     const state=this._state(entity,"unknown");
     const normalized=String(state||"").toLowerCase();
     const on=this._on(entity);

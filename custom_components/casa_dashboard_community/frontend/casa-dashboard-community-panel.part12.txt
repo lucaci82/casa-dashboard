@@ -326,6 +326,23 @@
 
   _dynamicRoom(room){
     const entities=this._orderedRoomEntities(room).filter(e=>this._hass?.states?.[e]);
+    // Add a single unassigned living-room TV without changing saved configuration.
+    const isLivingRoom=String(room.type||"").toLowerCase()==="soggiorno"
+      || /soggiorno|salone|sala relax|living room/i.test(String(room.name||""));
+    if(isLivingRoom){
+      const detected=Object.keys(this._hass?.states||{}).filter(id=>{
+        if(!id.startsWith("media_player.")) return false;
+        const name=String(this._hass.states[id]?.attributes?.friendly_name||"");
+        return /soggiorno|tv_sala/.test(id.toLowerCase())
+          && /\btv\b|televis|samsung|qe[0-9]/i.test(`${id} ${name}`);
+      });
+      if(detected.length===1 && !entities.includes(detected[0])){
+        const alreadyAssigned=(this._effectiveRooms()||[]).some(other=>
+          other.id!==room.id && (other.entities||[]).includes(detected[0])
+        );
+        if(!alreadyAssigned) entities.push(detected[0]);
+      }
+    }
     const display=e=>this._roomEntityDisplay(e,room);
     const byDomain=d=>entities.filter(e=>e.startsWith(d+"."));
     const lights=byDomain("light");
